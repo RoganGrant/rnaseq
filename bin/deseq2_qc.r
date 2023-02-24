@@ -30,13 +30,15 @@ library(pheatmap)
 
 option_list <- list(
     make_option(c("-i", "--count_file"    ), type="character", default=NULL    , metavar="path"   , help="Count file matrix where rows are genes and columns are samples."                        ),
+    make_option(c("-s", "--samplesheet"   ), type="character", default=NULL    , metavar="path"   , help="Path to sample sheet for metadata overlay."                                             ),
     make_option(c("-f", "--count_col"     ), type="integer"  , default=3       , metavar="integer", help="First column containing sample count data."                                             ),
     make_option(c("-d", "--id_col"        ), type="integer"  , default=1       , metavar="integer", help="Column containing identifiers to be used."                                              ),
     make_option(c("-r", "--sample_suffix" ), type="character", default=''      , metavar="string" , help="Suffix to remove after sample name in columns e.g. '.rmDup.bam' if 'DRUG_R1.rmDup.bam'."),
     make_option(c("-o", "--outdir"        ), type="character", default='./'    , metavar="path"   , help="Output directory."                                                                      ),
     make_option(c("-p", "--outprefix"     ), type="character", default='deseq2', metavar="string" , help="Output prefix."                                                                         ),
     make_option(c("-v", "--vst"           ), type="logical"  , default=FALSE   , metavar="boolean", help="Run vst transform instead of rlog."                                                     ),
-    make_option(c("-c", "--cores"         ), type="integer"  , default=1       , metavar="integer", help="Number of cores."                                                                       )
+    make_option(c("-c", "--cores"         ), type="integer"  , default=1       , metavar="integer", help="Number of cores."                                                                       ),
+    make_option(c("-g", "--group_col"     ), type="character", default='sample', metavar="string" , help="Column name for grouping samples on PCA, annotation bar on heatmap."                    )
 )
 
 opt_parser <- OptionParser(option_list=option_list)
@@ -75,6 +77,23 @@ name_components <- strsplit(samples.vec, "_")
 n_components    <- length(name_components[[1]])
 decompose       <- n_components!=1 && all(sapply(name_components, length)==n_components)
 coldata         <- data.frame(samples.vec, sample=samples.vec, row.names=1)
+#if supplied, add samplesheet metadata
+if(is.null(opt$samplesheet))
+{
+  samplesheet = NULL
+} else
+{
+  samplesheet     <- read.csv(opt$samplesheet)
+  keep_cols       <- setdiff(colnames(samplesheet), c("fastq_1", "fastq_2"))
+  samplesheet     <- unique(samplesheet[, keep_cols])
+  #handle unsafe colname issues
+  if(all(grepl("^X", coldata$sample)))
+  {
+    samplesheet$sample  <- paste0("X", samplesheet$sample)
+  }
+}
+coldata = merge(coldata, samplesheet, by = "sample", sort = FALSE, all.x = TRUE, all.y = FALSE)
+
 if (decompose) {
     groupings        <- as.data.frame(lapply(1:n_components, function(i) sapply(name_components, "[[", i)))
     names(groupings) <- paste0("Group", 1:n_components)
@@ -90,6 +109,10 @@ if (decompose) {
 DDSFile <- paste(opt$outprefix,".dds.RData",sep="")
 
 counts  <- count.table[,samples.vec,drop=FALSE]
+if(!all(rownames(coldata) == colnames(counts)))
+{
+  stop("colData does not match count matrix.")
+}
 dds     <- DESeqDataSetFromMatrix(countData=round(counts), colData=coldata, design=~ 1)
 dds     <- estimateSizeFactors(dds)
 if (min(dim(count.table))<=1)  { # No point if only one sample, or one gene
@@ -103,7 +126,7 @@ if (!opt$vst) {
     rld      <- rlog(dds)
 } else {
     vst_name <- "vst"
-    rld      <- varianceStabilizingTransformation(dds)
+    rld      <- vst(dds)
 }
 
 assay(dds, vst_name) <- assay(rld)
@@ -152,7 +175,7 @@ for (n_top_var in ntop) {
     pca.data      <- plotPCA_vst(dds, assay=vst_name, ntop=n_top_var)
     percentVar    <- round(attr(pca.data, "percentVar")$percentVar)
     plot_subtitle <- ifelse(n_top_var==Inf, "All genes", paste("Top", n_top_var, "genes"))
-    pl <- ggplot(pca.data, aes(PC1, PC2, label=paste0(" ", sample, " "))) +
+    pl <- ggplot(pca.data, aes(PC1, PC2, label=paste0(" ", sample, " "), color=!!opt$group_col)) +
         geom_point() +
         geom_text(check_overlap=TRUE, vjust=0.5, hjust="inward") +
         xlab(paste0("PC1: ",percentVar[1],"% variance")) +
@@ -194,11 +217,14 @@ write.table(pca.vals, file = paste(opt$outprefix, ".pca.vals.txt", sep=""),
 sampleDists      <- dist(t(assay(dds, vst_name)))
 sampleDistMatrix <- as.matrix(sampleDists)
 colors           <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
+heatmap_anno     <- coldata[, c(group_col), drop=FALSE]
 pheatmap(
     sampleDistMatrix,
     clustering_distance_rows=sampleDists,
     clustering_distance_cols=sampleDists,
     col=colors,
+    annotation_row = heatmap_anno,
+    annotation_col = heatmap_anno,
     main=paste("Euclidean distance between", vst_name, "of samples")
 )
 
