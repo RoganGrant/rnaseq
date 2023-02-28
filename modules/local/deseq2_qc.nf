@@ -37,7 +37,7 @@ process DESEQ2_QC {
         --count_file $counts \\
         --outdir ./ \\
         --cores $task.cpus \\
-        --samplesheet "$params.input" \\
+        --samplesheet $params.input \\
         --group_col $params.deseq2_group_col \\
         $args
 
