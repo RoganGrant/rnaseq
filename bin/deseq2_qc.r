@@ -55,7 +55,7 @@ if (is.null(opt$count_file)){
 ################################################
 ################################################
 
-count.table           <- read.delim(file=opt$count_file,header=TRUE, row.names=NULL)
+count.table           <- read.delim(file=opt$count_file, header=TRUE, row.names=NULL)
 rownames(count.table) <- count.table[,opt$id_col]
 count.table           <- count.table[,opt$count_col:ncol(count.table),drop=FALSE]
 colnames(count.table) <- gsub(opt$sample_suffix,"",colnames(count.table))
@@ -66,18 +66,15 @@ colnames(count.table) <- gsub(pattern='\\.$', replacement='', colnames(count.tab
 ################################################
 ################################################
 
-if(is.null(opt$samplesheet))
-{
-  samplesheet = NULL
-} else
-{
-  samplesheet     <- read.csv(opt$samplesheet, )
-  keep_cols       <- setdiff(colnames(samplesheet), c("fastq_1", "fastq_2"))
-  samplesheet     <- unique(samplesheet[, keep_cols])
+if(is.null(opt$samplesheet)){
+  ss              <- NULL
+} else{
+  ss              <- read.csv(opt$samplesheet)
+  keep_cols       <- setdiff(colnames(ss), c("fastq_1", "fastq_2"))
+  ss              <- unique(ss[, keep_cols])
   #handle unsafe colname issues
-  if(all(grepl("^X", coldata$sample)))
-  {
-    samplesheet$sample  <- paste0("X", samplesheet$sample)
+  if(all(grepl("^X", coldata$sample))){
+    ss$sample     <- paste0("X", ss$sample)
   }
 }
 
@@ -97,7 +94,7 @@ name_components <- strsplit(samples.vec, "_")
 n_components    <- length(name_components[[1]])
 decompose       <- n_components!=1 && all(sapply(name_components, length)==n_components)
 coldata         <- data.frame(samples.vec, sample=samples.vec, row.names=1)
-coldata = merge(coldata, samplesheet, by = "sample", sort = FALSE, all.x = TRUE, all.y = FALSE)
+coldata = merge(coldata, ss, by = "sample", sort = FALSE, all.x = TRUE, all.y = FALSE)
 
 if (decompose) {
     groupings        <- as.data.frame(lapply(1:n_components, function(i) sapply(name_components, "[[", i)))
