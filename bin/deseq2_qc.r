@@ -84,7 +84,7 @@ if(is.null(opt$samplesheet))
 } else
 {
   ### remove after testing ####
-  class(opt$samplesheet)
+  print(class(opt$samplesheet))
   print(opt$samplesheet)
   ### remove after testing ####
   samplesheet     <- read.csv(opt$samplesheet)
