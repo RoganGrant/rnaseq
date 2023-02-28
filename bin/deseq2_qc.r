@@ -66,16 +66,11 @@ colnames(count.table) <- gsub(pattern='\\.$', replacement='', colnames(count.tab
 ################################################
 ################################################
 
-###### TESTING 123
-getwd()
-print(opt$count_file)
-print(opt$samplesheet)
-###### TESTING 123
-
 if(is.null(opt$samplesheet)){
   samplesheet     <- NULL
 } else{
-  samplesheet     <- read.csv(opt$samplesheet)
+  setwd(dirname(opt$samplesheet))
+  samplesheet     <- read.csv(basename(opt$samplesheet))
   keep_cols       <- setdiff(colnames(samplesheet), c("fastq_1", "fastq_2"))
   samplesheet     <- unique(samplesheet[, keep_cols])
   #handle unsafe colname issues
