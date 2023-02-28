@@ -66,15 +66,21 @@ colnames(count.table) <- gsub(pattern='\\.$', replacement='', colnames(count.tab
 ################################################
 ################################################
 
+###### TESTING 123
+getwd()
+print(opt$count_file)
+print(opt$samplesheet)
+###### TESTING 123
+
 if(is.null(opt$samplesheet)){
-  ss              <- NULL
+  samplesheet     <- NULL
 } else{
-  ss              <- read.csv(opt$samplesheet)
-  keep_cols       <- setdiff(colnames(ss), c("fastq_1", "fastq_2"))
-  ss              <- unique(ss[, keep_cols])
+  samplesheet     <- read.csv(opt$samplesheet)
+  keep_cols       <- setdiff(colnames(samplesheet), c("fastq_1", "fastq_2"))
+  samplesheet     <- unique(samplesheet[, keep_cols])
   #handle unsafe colname issues
   if(all(grepl("^X", coldata$sample))){
-    ss$sample     <- paste0("X", ss$sample)
+    samplesheet$sample  <- paste0("X", samplesheet$sample)
   }
 }
 
@@ -94,7 +100,7 @@ name_components <- strsplit(samples.vec, "_")
 n_components    <- length(name_components[[1]])
 decompose       <- n_components!=1 && all(sapply(name_components, length)==n_components)
 coldata         <- data.frame(samples.vec, sample=samples.vec, row.names=1)
-coldata = merge(coldata, ss, by = "sample", sort = FALSE, all.x = TRUE, all.y = FALSE)
+coldata = merge(coldata, samplesheet, by = "sample", sort = FALSE, all.x = TRUE, all.y = FALSE)
 
 if (decompose) {
     groupings        <- as.data.frame(lapply(1:n_components, function(i) sapply(name_components, "[[", i)))
