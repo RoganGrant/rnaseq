@@ -83,6 +83,10 @@ if(is.null(opt$samplesheet))
   samplesheet = NULL
 } else
 {
+  ### remove after testing ####
+  class(opt$samplesheet)
+  print(opt$samplesheet)
+  ### remove after testing ####
   samplesheet     <- read.csv(opt$samplesheet)
   keep_cols       <- setdiff(colnames(samplesheet), c("fastq_1", "fastq_2"))
   samplesheet     <- unique(samplesheet[, keep_cols])
