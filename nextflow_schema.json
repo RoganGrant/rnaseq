@@ -722,7 +722,7 @@
                     "type": "string",
                     "description": "Name of grouping column by which to color DESeq2 results",
                     "hidden": false,
-                    "default": 'sample',
+                    "default": "sample",
                     "help_text": "Specifies the name of the grouping variable with which to color code DESeq2 QC (PCA and distance matrix)."
                 }
             }
