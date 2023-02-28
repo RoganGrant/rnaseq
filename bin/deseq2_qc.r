@@ -62,6 +62,26 @@ colnames(count.table) <- gsub(opt$sample_suffix,"",colnames(count.table))
 colnames(count.table) <- gsub(pattern='\\.$', replacement='', colnames(count.table))
 
 ################################################
+## READ SAMPLE SHEET                          ##
+################################################
+################################################
+
+if(is.null(opt$samplesheet))
+{
+  samplesheet = NULL
+} else
+{
+  samplesheet     <- read.csv(opt$samplesheet, )
+  keep_cols       <- setdiff(colnames(samplesheet), c("fastq_1", "fastq_2"))
+  samplesheet     <- unique(samplesheet[, keep_cols])
+  #handle unsafe colname issues
+  if(all(grepl("^X", coldata$sample)))
+  {
+    samplesheet$sample  <- paste0("X", samplesheet$sample)
+  }
+}
+
+################################################
 ################################################
 ## RUN DESEQ2                                 ##
 ################################################
@@ -77,25 +97,6 @@ name_components <- strsplit(samples.vec, "_")
 n_components    <- length(name_components[[1]])
 decompose       <- n_components!=1 && all(sapply(name_components, length)==n_components)
 coldata         <- data.frame(samples.vec, sample=samples.vec, row.names=1)
-#if supplied, add samplesheet metadata
-if(is.null(opt$samplesheet))
-{
-  samplesheet = NULL
-} else
-{
-  ### remove after testing ####
-  print(class(opt$samplesheet))
-  print(opt$samplesheet)
-  ### remove after testing ####
-  samplesheet     <- read.csv(opt$samplesheet)
-  keep_cols       <- setdiff(colnames(samplesheet), c("fastq_1", "fastq_2"))
-  samplesheet     <- unique(samplesheet[, keep_cols])
-  #handle unsafe colname issues
-  if(all(grepl("^X", coldata$sample)))
-  {
-    samplesheet$sample  <- paste0("X", samplesheet$sample)
-  }
-}
 coldata = merge(coldata, samplesheet, by = "sample", sort = FALSE, all.x = TRUE, all.y = FALSE)
 
 if (decompose) {
