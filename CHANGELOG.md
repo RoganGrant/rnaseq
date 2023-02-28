@@ -3,6 +3,20 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [[3.11](https://github.com/nf-core/rnaseq/releases/tag/3.11)] - 2023-xx-xx
+
+### Enhancements & fixes
+
+- [[#951](https://github.com/nf-core/rnaseq/issues/729)] - Group DESeq2 QC by user-defined factor
+
+### Parameters
+
+| Old parameter    | New parameter               |
+| ---------------- | --------------------------- |
+|                  | `--deseq2_group_col`        |
+|                  |                             |
+|                  |                             |
+
 ## [[3.10.1](https://github.com/nf-core/rnaseq/releases/tag/3.10.1)] - 2023-01-05
 
 ### Enhancements & fixes
