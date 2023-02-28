@@ -10,6 +10,7 @@ process DESEQ2_QC {
 
     input:
     path counts
+    path samplesheet
     path pca_header_multiqc
     path clustering_header_multiqc
 
@@ -37,7 +38,7 @@ process DESEQ2_QC {
         --count_file $counts \\
         --outdir ./ \\
         --cores $task.cpus \\
-        --samplesheet $params.input \\
+        --samplesheet $samplesheet \\
         --group_col $params.deseq2_group_col \\
         $args
 
