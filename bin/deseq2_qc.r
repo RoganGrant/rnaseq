@@ -71,7 +71,7 @@ if(is.null(opt$samplesheet))
   samplesheet = NULL
 } else
 {
-  samplesheet     <- read.csv(file = file.path(opt$samplesheet))
+  samplesheet     <- read.csv(opt$samplesheet, )
   keep_cols       <- setdiff(colnames(samplesheet), c("fastq_1", "fastq_2"))
   samplesheet     <- unique(samplesheet[, keep_cols])
   #handle unsafe colname issues
