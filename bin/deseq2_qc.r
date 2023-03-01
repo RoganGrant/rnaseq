@@ -72,24 +72,21 @@ if (file.exists(opt$outdir) == FALSE) {
 }
 setwd(opt$outdir)
 
-samples.vec     <- colnames(count.table)
-name_components <- strsplit(samples.vec, "_")
-n_components    <- length(name_components[[1]])
-decompose       <- n_components!=1 && all(sapply(name_components, length)==n_components)
-coldata         <- data.frame(samples.vec, sample=samples.vec, row.names=1)
+samples.vec        <- colnames(count.table)
+name_components    <- strsplit(samples.vec, "_")
+n_components       <- length(name_components[[1]])
+decompose          <- n_components!=1 && all(sapply(name_components, length)==n_components)
+coldata            <- data.frame(samples.vec, sample=samples.vec, row.names=1)
 
 if(is.null(opt$samplesheet)){
-  samplesheet     <- NULL
+  samplesheet        <- NULL
 } else{
-  samplesheet     <- read.csv(file=opt$samplesheet)
-  keep_cols       <- setdiff(colnames(samplesheet), c("fastq_1", "fastq_2"))
-  samplesheet     <- unique(samplesheet[, keep_cols])
-  #handle unsafe colname issues
-  if(all(grepl("^X", coldata$sample))){
-    samplesheet$sample  <- paste0("X", samplesheet$sample)
-  }
-  coldata       <- merge(coldata, samplesheet, by = "sample", sort = FALSE, all.x = TRUE, all.y = FALSE)
+  samplesheet        <- read.csv(file=opt$samplesheet)
+  keep_cols          <- setdiff(colnames(samplesheet), c("fastq_1", "fastq_2"))
+  samplesheet        <- unique(samplesheet[, keep_cols])
+  coldata            <- merge(coldata, samplesheet, by = "sample", sort = FALSE, all.x = TRUE, all.y = FALSE)
 }
+rownames(coldata)  <- coldata$sample
 
 if (decompose) {
     groupings        <- as.data.frame(lapply(1:n_components, function(i) sapply(name_components, "[[", i)))
@@ -111,7 +108,8 @@ counts  <- count.table[,samples.vec,drop=FALSE]
 print(rownames(coldata))
 print(colnames(counts))
 
-if(!all(rownames(coldata) == colnames(counts)))
+if(!all(rownames(coldata) == colnames(counts)) |
+   !all(rownames(coldata) == gsub("^X", "", colnames(counts)))) #handle unsafe colname issues
 {
   stop("colData does not match count matrix.")
 }
