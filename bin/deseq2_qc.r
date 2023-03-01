@@ -104,10 +104,6 @@ DDSFile <- paste(opt$outprefix,".dds.RData",sep="")
 
 counts  <- count.table[,samples.vec,drop=FALSE]
 
-#testing (remove)
-print(rownames(coldata))
-print(colnames(counts))
-
 if(!all(rownames(coldata) == colnames(counts)) |
    !all(gsub("^X", "", rownames(coldata)) == gsub("^X", "", colnames(counts)))) #handle unsafe colname issues
 {
@@ -217,7 +213,7 @@ write.table(pca.vals, file = paste(opt$outprefix, ".pca.vals.txt", sep=""),
 sampleDists      <- dist(t(assay(dds, vst_name)))
 sampleDistMatrix <- as.matrix(sampleDists)
 colors           <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
-heatmap_anno     <- coldata[, c(group_col), drop=FALSE]
+heatmap_anno     <- coldata[, c(opt$group_col), drop=FALSE]
 pheatmap(
     sampleDistMatrix,
     clustering_distance_rows=sampleDists,
