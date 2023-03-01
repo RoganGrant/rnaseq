@@ -21,7 +21,8 @@ checkPathParamList = [
     params.fasta, params.transcript_fasta, params.additional_fasta,
     params.gtf, params.gff, params.gene_bed,
     params.ribo_database_manifest, params.splicesites,
-    params.star_index, params.hisat2_index, params.rsem_index, params.salmon_index
+    params.star_index, params.hisat2_index, params.rsem_index, params.salmon_index,
+    params.deseq2_group_col
 ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
@@ -455,7 +456,9 @@ workflow RNASEQ {
             DESEQ2_QC_STAR_SALMON (
                 QUANTIFY_STAR_SALMON.out.counts_gene_length_scaled,
                 ch_pca_header_multiqc,
-                ch_clustering_header_multiqc
+                ch_clustering_header_multiqc,
+                params.deseq2_group_col,
+                ch_input
             )
             ch_aligner_pca_multiqc        = DESEQ2_QC_STAR_SALMON.out.pca_multiqc
             ch_aligner_clustering_multiqc = DESEQ2_QC_STAR_SALMON.out.dists_multiqc
@@ -488,7 +491,9 @@ workflow RNASEQ {
             DESEQ2_QC_RSEM (
                 QUANTIFY_RSEM.out.merged_counts_gene,
                 ch_pca_header_multiqc,
-                ch_clustering_header_multiqc
+                ch_clustering_header_multiqc,
+                params.deseq2_group_col,
+                ch_input
             )
             ch_aligner_pca_multiqc        = DESEQ2_QC_RSEM.out.pca_multiqc
             ch_aligner_clustering_multiqc = DESEQ2_QC_RSEM.out.dists_multiqc
@@ -779,7 +784,9 @@ workflow RNASEQ {
             DESEQ2_QC_SALMON (
                 QUANTIFY_SALMON.out.counts_gene_length_scaled,
                 ch_pca_header_multiqc,
-                ch_clustering_header_multiqc
+                ch_clustering_header_multiqc,
+                params.deseq2_group_col,
+                ch_input
             )
             ch_pseudoaligner_pca_multiqc        = DESEQ2_QC_SALMON.out.pca_multiqc
             ch_pseudoaligner_clustering_multiqc = DESEQ2_QC_SALMON.out.dists_multiqc

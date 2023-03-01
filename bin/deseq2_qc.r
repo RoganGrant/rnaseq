@@ -69,7 +69,7 @@ colnames(count.table) <- gsub(pattern='\\.$', replacement='', colnames(count.tab
 if(is.null(opt$samplesheet)){
   samplesheet     <- NULL
 } else{
-  samplesheet     <- read.csv(opt$samplesheet)
+  samplesheet     <- read.csv(file=opt$samplesheet)
   keep_cols       <- setdiff(colnames(samplesheet), c("fastq_1", "fastq_2"))
   samplesheet     <- unique(samplesheet[, keep_cols])
   #handle unsafe colname issues

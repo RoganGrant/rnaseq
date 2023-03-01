@@ -12,6 +12,8 @@ process DESEQ2_QC {
     path counts
     path pca_header_multiqc
     path clustering_header_multiqc
+    path samplesheet
+    val group_col
 
     output:
     path "*.pdf"                , optional:true, emit: pdf
@@ -37,8 +39,8 @@ process DESEQ2_QC {
         --count_file $counts \\
         --outdir ./ \\
         --cores $task.cpus \\
-        --samplesheet $params.input \\
-        --group_col $params.deseq2_group_col \\
+        --samplesheet $samplesheet \\
+        --group_col $group_col \\
         $args
 
     if [ -f "R_sessionInfo.log" ]; then
