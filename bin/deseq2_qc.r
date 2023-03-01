@@ -114,6 +114,10 @@ if(!all(rownames(coldata) == colnames(counts)) ||
   stop("colData does not match count matrix.")
 }
 design  <- formula(paste0("~", opt$group_col))
+
+#testing!!!
+print(design)
+
 #note that design does not affect PCA as blind = TRUE
 dds     <- DESeqDataSetFromMatrix(countData=round(counts), colData=coldata, design=design)
 dds     <- estimateSizeFactors(dds)
