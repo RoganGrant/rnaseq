@@ -177,7 +177,7 @@ for (n_top_var in ntop) {
     pca.data      <- plotPCA_vst(dds, assay=vst_name, ntop=n_top_var)
     percentVar    <- round(attr(pca.data, "percentVar")$percentVar)
     plot_subtitle <- ifelse(n_top_var==Inf, "All genes", paste("Top", n_top_var, "genes"))
-    pl <- ggplot(pca.data, aes(PC1, PC2, label=paste0(" ", sample, " "), color=!!opt$group_col)) +
+    pl <- ggplot(pca.data, aes(PC1, PC2, label=paste0(" ", sample, " "), color=.data[[opt$group_col]])) +
         geom_point() +
         geom_text(check_overlap=TRUE, vjust=0.5, hjust="inward") +
         xlab(paste0("PC1: ",percentVar[1],"% variance")) +
