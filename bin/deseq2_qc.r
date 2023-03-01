@@ -109,7 +109,7 @@ print(rownames(coldata))
 print(colnames(counts))
 
 if(!all(rownames(coldata) == colnames(counts)) |
-   !all(rownames(coldata) == gsub("^X", "", colnames(counts)))) #handle unsafe colname issues
+   !all(gsub("^X", "", rownames(coldata)) == gsub("^X", "", colnames(counts)))) #handle unsafe colname issues
 {
   stop("colData does not match count matrix.")
 }
