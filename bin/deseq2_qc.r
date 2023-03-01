@@ -213,7 +213,11 @@ write.table(pca.vals, file = paste(opt$outprefix, ".pca.vals.txt", sep=""),
 sampleDists      <- dist(t(assay(dds, vst_name)))
 sampleDistMatrix <- as.matrix(sampleDists)
 colors           <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
-heatmap_anno     <- coldata[, c(opt$group_col), drop=FALSE]
+heatmap_anno     <- coldata[, opt$group_col, drop=FALSE]
+
+#testing
+print(heatmap_anno)
+
 pheatmap(
     sampleDistMatrix,
     clustering_distance_rows=sampleDists,
