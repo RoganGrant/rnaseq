@@ -106,6 +106,11 @@ if (decompose) {
 DDSFile <- paste(opt$outprefix,".dds.RData",sep="")
 
 counts  <- count.table[,samples.vec,drop=FALSE]
+
+#testing (remove)
+print(rownames(coldata))
+print(colnames(counts))
+
 if(!all(rownames(coldata) == colnames(counts)))
 {
   stop("colData does not match count matrix.")
