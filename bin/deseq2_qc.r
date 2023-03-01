@@ -84,6 +84,10 @@ if(is.null(opt$samplesheet)){
   samplesheet        <- read.csv(file=opt$samplesheet)
   keep_cols          <- setdiff(colnames(samplesheet), c("fastq_1", "fastq_2"))
   samplesheet        <- unique(samplesheet[, keep_cols])
+  #handle unsafe colname issues
+  if(all(grepl("^X", coldata$sample)) && !(all(grepl("^X", samplesheet$sample)))){
+    samplesheet$sample  <- paste0("X", samplesheet$sample)
+  }
   coldata            <- merge(coldata, samplesheet, by = "sample", sort = FALSE, all.x = TRUE, all.y = FALSE)
 }
 rownames(coldata)  <- coldata$sample
@@ -104,12 +108,14 @@ DDSFile <- paste(opt$outprefix,".dds.RData",sep="")
 
 counts  <- count.table[,samples.vec,drop=FALSE]
 
-if(!all(rownames(coldata) == colnames(counts)) |
+if(!all(rownames(coldata) == colnames(counts)) ||
    !all(gsub("^X", "", rownames(coldata)) == gsub("^X", "", colnames(counts)))) #handle unsafe colname issues
 {
   stop("colData does not match count matrix.")
 }
-dds     <- DESeqDataSetFromMatrix(countData=round(counts), colData=coldata, design=~ 1)
+design  <- formula(paste0("~", opt$group_col))
+#note that design does not affect PCA as blind = TRUE
+dds     <- DESeqDataSetFromMatrix(countData=round(counts), colData=coldata, design=design)
 dds     <- estimateSizeFactors(dds)
 if (min(dim(count.table))<=1)  { # No point if only one sample, or one gene
     save(dds,file=DDSFile)
@@ -214,9 +220,6 @@ sampleDists      <- dist(t(assay(dds, vst_name)))
 sampleDistMatrix <- as.matrix(sampleDists)
 colors           <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
 heatmap_anno     <- coldata[, opt$group_col, drop=FALSE]
-
-#testing
-print(heatmap_anno)
 
 pheatmap(
     sampleDistMatrix,
